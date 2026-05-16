@@ -30,10 +30,31 @@ A pre-packaged Windows installer is available — everything bundled in one clic
 
 If you use the free GitHub version and find it useful, donations are appreciated:
 
-| Method | Address |
-|--------|---------|
-| ₿ Bitcoin (BTC) | `13SBnVGj8skzYGYE2ffBMmdQTLqEhpfKoc` |
-| 💵 USDT — TRC-20 (Tron) | `TAg1roU86C6UZchqfsKRcyp7gJtfVkpMBB` |
+<table>
+  <thead>
+    <tr><th>Method</th><th></th><th>Address</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="2">₿ Bitcoin (BTC)</td>
+      <td>First Address</td>
+      <td><code>13SBnVGj8skzYGYE2ffBMmdQTLqEhpfKoc</code></td>
+    </tr>
+    <tr>
+      <td>Second Address</td>
+      <td><code>32Ztk8P3zMavx51usno2adnDiZzLmZL42y</code></td>
+    </tr>
+    <tr>
+      <td rowspan="2">💵 USDT — Polygon (POL)</td>
+      <td>First Address</td>
+      <td><code>0xd87578e8e337c12247020c67c8ff4b527c364666</code></td>
+    </tr>
+    <tr>
+      <td>Second Address</td>
+      <td><code>0x2550cae4295c0326e58c6fe4ee45339bc7239e73</code></td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
