@@ -24,6 +24,8 @@ A pre-packaged Windows installer is available — everything bundled in one clic
 
 <br>
 
+👉 **[Get it on Patreon](https://www.patreon.com/c/MakimusAi)** 🌟 **Recommended**
+
 👉 **[Get it on Fansky](https://www.fansky.co/ubaidayusuf/1)** ⭐ Recommended
 
 <br>
