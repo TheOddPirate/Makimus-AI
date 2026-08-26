@@ -3,6 +3,7 @@ name: Release
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 env:
   BRANCH: main
@@ -15,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ env.BRANCH }}
@@ -46,10 +47,7 @@ jobs:
 
           if [ -z "$latest" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          if [ "$(printf '%s\n%s\n' "$latest" "$current" | sort -V | tail -n1)" = "$current" ] && [ "$current" != "$latest" ]; then
+          elif [ "$(printf '%s\n%s\n' "$latest" "$current" | sort -V | tail -n1)" = "$current" ] && [ "$current" != "$latest" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
           else
             echo "publish=false" >> "$GITHUB_OUTPUT"
@@ -67,34 +65,38 @@ jobs:
             })
 
       - name: Install Flatpak tooling
+        if: steps.version_check.outputs.publish == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y flatpak flatpak-builder
 
       - name: Add Flathub remote
+        if: steps.version_check.outputs.publish == 'true'
         run: |
           flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
 
       - name: Cache Flatpak runtime and sdk
-        uses: actions/cache@v5
+        if: steps.version_check.outputs.publish == 'true'
+        uses: actions/cache@v4
         with:
           path: |
             ~/.var/app
             ~/.local/share/flatpak
             ~/.cache/flatpak
-            /app/
           key: ${{ runner.os }}-flatpak-${{ hashFiles('com.github.Ubaida_M_Yusuf.Makimus_AI.yaml') }}
           restore-keys: |
             ${{ runner.os }}-flatpak-
 
       - name: Build Flatpak
+        if: steps.version_check.outputs.publish == 'true'
         run: |
-          flatpak-builder --user --install-deps-from=flathub --force-clean build-dir com.github.Ubaida_M_Yusuf.Makimus_AI.yaml
+          flatpak-builder --user --install-deps-from=flathub --force-clean build-dir ${{ env.MANIFEST }}
           rm -rf repo
-          flatpak-builder --user --repo=repo --force-clean build-dir com.github.Ubaida_M_Yusuf.Makimus_AI.yaml
-          flatpak build-bundle repo Makimus_AI--V${{ steps.get_version.outputs.version }}.flatpak com.github.Ubaida_M_Yusuf.Makimus_AI main
+          flatpak-builder --user --repo=repo --force-clean build-dir ${{ env.MANIFEST }}
+          flatpak build-bundle repo Makimus_AI-v${{ steps.get_version.outputs.version }}.flatpak ${{ env.APP_ID }} main
 
       - name: Create GitHub Release
+        if: steps.version_check.outputs.publish == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.get_version.outputs.version }}
