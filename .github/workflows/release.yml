@@ -71,7 +71,7 @@ jobs:
         with:
           bundle: Makimus_AI-v${{ steps.get_version.outputs.version }}.flatpak
           manifest-path: ${{ env.MANIFEST }}
-          gpg-sign: false
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
