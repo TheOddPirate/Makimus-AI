@@ -32,7 +32,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          latest=$(gh release view --json tagName -q .tagName 2>/dev/null || echo "")
+          latest=$(gh release view --json tagName -q .tagName 2>/devnull || echo "")
           latest=${latest#v}
           echo "latest=$latest" >> "$GITHUB_OUTPUT"
 
@@ -64,11 +64,12 @@ jobs:
               run_id: context.runId
             })
 
-      - name: Install Flatpak tooling
+      - name: Install Flatpak & Python tooling
         if: steps.version_check.outputs.publish == 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder
+          sudo apt-get install -y flatpak flatpak-builder python3-pip python3-setuptools
+          pip3 install flatpak-pip-generator
 
       - name: Add Flathub remote
         if: steps.version_check.outputs.publish == 'true'
@@ -87,13 +88,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-flatpak-
 
+      - name: Generate Python Dependencies
+        if: steps.version_check.outputs.publish == 'true'
+        run: |
+          flatpak-pip-generator \
+            --requirements-file=requirements-flatpak.txt \
+            --output=python-dependencies \
+            --runtime=org.freedesktop.Sdk//24.08 \
+            --prefer-wheels=torch,torchvision,triton,cuda-bindings,Pillow,pybind11,opencv-python,numpy,rawpy,safetensors,regex,hf-xet,PyYAML,nvidia-cublas,nvidia-cuda-cupti,nvidia-cuda-nvrtc,nvidia-cuda-runtime,nvidia-cudnn-cu13,nvidia-cufft,nvidia-cufile,nvidia-curand,nvidia-cusolver,nvidia-cusparse,nvidia-cusparselt-cu13,nvidia-nccl-cu13,nvidia-nvjitlink,nvidia-nvshmem-cu13,nvidia-nvtx
+
       - name: Build Flatpak
         if: steps.version_check.outputs.publish == 'true'
         run: |
           flatpak-builder --user --install-deps-from=flathub --force-clean build-dir ${{ env.MANIFEST }}
           rm -rf repo
           flatpak-builder --user --repo=repo --force-clean build-dir ${{ env.MANIFEST }}
-          flatpak build-bundle repo Makimus_AI-v${{ steps.get_version.outputs.version }}.flatpak ${{ env.APP_ID }} main
+          flatpak build-bundle repo Makimus_AI-v${{ steps.get_version.outputs.version }}.flatpak ${{ env.APP_ID }} master
 
       - name: Create GitHub Release
         if: steps.version_check.outputs.publish == 'true'
