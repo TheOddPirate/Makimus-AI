@@ -81,5 +81,3 @@ jobs:
           tag_name: v${{ steps.get_version.outputs.version }}
           name: Makimus-AI v${{ steps.get_version.outputs.version }}
           files: Makimus_AI-v${{ steps.get_version.outputs.version }}.flatpak
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
