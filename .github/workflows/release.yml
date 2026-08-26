@@ -91,7 +91,7 @@ jobs:
       - name: Generate Python Dependencies
         if: steps.version_check.outputs.publish == 'true'
         run: |
-          flatpak-pip-generator \
+          flatpak_pip_generator \
             --requirements-file=requirements-flatpak.txt \
             --output=python-dependencies \
             --runtime=org.freedesktop.Sdk//24.08 \
