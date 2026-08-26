@@ -69,12 +69,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y flatpak flatpak-builder python3-pip python3-setuptools
-          pip3 install flatpak-pip-generator
+          sudo pip3 install flatpak-pip-generator --break-system-packages || sudo pip3 install flatpak-pip-generator
 
-      - name: Add Flathub remote
+      - name: Add Flathub remote & Install SDK
         if: steps.version_check.outputs.publish == 'true'
         run: |
           flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y flathub org.freedesktop.Sdk//24.08
 
       - name: Cache Flatpak runtime and sdk
         if: steps.version_check.outputs.publish == 'true'
