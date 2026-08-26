@@ -1,0 +1,54 @@
+app-id: com.github.Ubaida_M_Yusuf.Makimus_AI
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: run.sh
+
+# Tillatelser (Permissions)
+finish-args:
+  - --share=ipc
+  - --socket=x11               # Nødvendig for Tkinter GUI
+  - --socket=wayland           # Støtte for Wayland
+  - --device=dri               # Direkte GPU-tilgang (Nvidia / AMD)
+  - --filesystem=host          # Gir appen tilgang til å skanne bildemapper på disken
+  - --share=network            # Nødvendig for nedlasting av CLIP-modeller første gang
+
+modules:
+  # 1. Installer ffmpeg for videostøtte
+  - name: ffmpeg
+    build-options:
+      config-opts:
+        - --enable-shared
+        - --disable-static
+    sources:
+      - type: archive
+        url: https://ffmpeg.org/releases/ffmpeg-9.0.1.tar.xz
+        sha256: cf38e0e28c7e5605942c4a77755349b0145804a397af37eb1fb4c77cb237f635
+
+  - name: python-deps
+    buildsystem: simple
+    build-commands: []
+    modules:
+      - python-dependencies.json
+
+  # 4. Hovedapplikasjonen
+  - name: makimus-ai
+    buildsystem: simple
+    build-commands:
+      # Kopier kildekoden til /app/share/makimus
+      - mkdir -p /app/share/makimus
+      - cp -r * /app/share/makimus/
+      # Opprett oppstartsskript
+      - mkdir -p /app/bin
+      - |
+        cat << 'EOF' > /app/bin/run.sh
+        #!/bin/sh
+        export TCLLIBPATH="/app/lib /usr/lib"
+        export HF_HUB_ENABLE_HF_TRANSFER=0
+        cd /app/share/makimus
+        exec python3 Makimus-AI.py "$@"
+        EOF
+      - chmod +x /app/bin/run.sh
+    sources:
+      - type: dir
+        path: .

@@ -1,0 +1,16 @@
+pybind11
+setuptools
+wheel
+safetensors
+regex
+hf-xet
+PyYAML
+Pillow
+numpy
+torch
+torchvision
+open_clip_torch
+rawpy
+opencv-python
+Send2Trash
+tkinterdnd2

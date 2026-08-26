@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  BRANCH: main
+  APP_ID: com.github.Ubaida_M_Yusuf.Makimus_AI
+  MANIFEST: com.github.Ubaida_M_Yusuf.Makimus_AI.yaml
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.BRANCH }}
+
+      - name: Read version from version.txt
+        id: get_version
+        run: |
+          VERSION=$(cat version.txt | tr -d '\r\n ')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Get latest release version
+        id: latest_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          latest=$(gh release view --json tagName -q .tagName 2>/dev/null || echo "")
+          latest=${latest#v}
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+
+      - name: Compare versions
+        id: version_check
+        run: |
+          current="${{ steps.get_version.outputs.version }}"
+          latest="${{ steps.latest_release.outputs.latest }}"
+
+          echo "Current version: $current"
+          echo "Latest release: $latest"
+
+          if [ -z "$latest" ]; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "$(printf '%s\n%s\n' "$latest" "$current" | sort -V | tail -n1)" = "$current" ] && [ "$current" != "$latest" ]; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Cancel workflow if version is not updated
+        if: steps.version_check.outputs.publish != 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.actions.cancelWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId
+            })
+
+      - name: Setup & Build Flatpak
+        uses: flathub/flatpak-builder-action@v1
+        with:
+          bundle: Makimus_AI-v${{ steps.get_version.outputs.version }}.flatpak
+          manifest-path: ${{ env.MANIFEST }}
+          app-id: ${{ env.APP_ID }}
+          gpg-sign: false
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Makimus-AI v${{ steps.get_version.outputs.version }}
+          files: Makimus_AI-v${{ steps.get_version.outputs.version }}.flatpak
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
