@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@@v7
         with:
           fetch-depth: 0
           ref: ${{ env.BRANCH }}
@@ -73,7 +73,6 @@ jobs:
           manifest-path: ${{ env.MANIFEST }}
           app-id: ${{ env.APP_ID }}
           gpg-sign: false
-          
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
