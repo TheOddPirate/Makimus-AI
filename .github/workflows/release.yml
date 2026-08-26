@@ -91,13 +91,12 @@ jobs:
 
       - name: Generate Python Dependencies
         if: steps.version_check.outputs.publish == 'true'
-        run: |
+run: |
           flatpak_pip_generator \
             --requirements-file=requirements-flatpak.txt \
             --output=python-dependencies \
             --runtime=org.freedesktop.Sdk//24.08 \
-            --prefer-wheels=torch,torchvision,triton,cuda-bindings,Pillow,pybind11,opencv-python,numpy,rawpy,safetensors,regex,hf-xet,PyYAML,nvidia-cublas,nvidia-cuda-cupti,nvidia-cuda-nvrtc,nvidia-cuda-runtime,nvidia-cudnn-cu13,nvidia-cufft,nvidia-cufile,nvidia-curand,nvidia-cusolver,nvidia-cusparse,nvidia-cusparselt-cu13,nvidia-nccl-cu13,nvidia-nvjitlink,nvidia-nvshmem-cu13,nvidia-nvtx
-
+            --prefer-wheels=torch,torchvision,triton,cuda-bindings,Pillow,pybind11,opencv-python,numpy,rawpy,safetensors,regex,hf-xet,PyYAML,nvidia-cublas,nvidia-cuda-cupti,nvidia-cuda-nvrtc,nvidia-cuda-runtime,nvidia-cudnn-cu13,nvidia-cufft,nvidia-cufile,nvidia-curand,nvidia-cusolver,nvidia-cusparse,nvidia-cusparselt-cu13,nvidia-nccl-cu13,nvidia-nvjitlink,nvidia-nvshmem-cu13,nvidia-nvtx || true
       - name: Build Flatpak
         if: steps.version_check.outputs.publish == 'true'
         run: |
