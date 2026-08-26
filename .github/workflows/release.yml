@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ env.BRANCH }}
@@ -77,7 +77,7 @@ jobs:
 
       - name: Cache Flatpak runtime and sdk
         if: steps.version_check.outputs.publish == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.var/app
